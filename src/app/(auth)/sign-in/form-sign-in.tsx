@@ -18,8 +18,8 @@ import { RiCheckboxCircleFill } from '@remixicon/react';
 import { X } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -36,6 +36,15 @@ export default function FormSignIn() {
   });
   const [loading, setLoading] = useState({ sigIn: false });
   const router = useRouter();
+  const message = useSearchParams().get('m');
+
+  useEffect(() => {
+    if (message) {
+      setTimeout(() => {
+        toast.error(message);
+      }, 0);
+    }
+  }, []);
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
@@ -46,31 +55,14 @@ export default function FormSignIn() {
         password: data.password,
         redirect: false,
       });
-      if (res?.status == 200) {
-        toast.custom((t) => (
-          <Alert variant="mono" icon="success" onClose={() => toast.dismiss(t)}>
-            <AlertIcon>
-              <RiCheckboxCircleFill />
-            </AlertIcon>
-            <AlertTitle>
-              Signed in successfully!
-            </AlertTitle>
-          </Alert>
-        ));
-        router.push('/');
+      if (res?.status !== 200) {
+        toast.error('Invalid email or password.');
+        return;
       }
+      toast.success('Successfully signed in!');
+      router.push('/');
     } catch (error) {
       console.error(error);
-      toast.custom((t) => (
-        <Alert variant="mono" icon="destructive" onClose={() => toast.dismiss(t)}>
-          <AlertIcon>
-            <X />
-          </AlertIcon>
-          <AlertTitle>
-            Email or Password is incorrect.
-          </AlertTitle>
-        </Alert>
-      ));
     } finally {
       setLoading({ ...loading, sigIn: false });
     }

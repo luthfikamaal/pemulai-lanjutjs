@@ -1,6 +1,10 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { getServerSession, type NextAuthOptions } from "next-auth";
+import {
+  DefaultSession,
+  getServerSession,
+  type NextAuthOptions,
+} from "next-auth";
 import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
@@ -8,14 +12,20 @@ import { v4 as uuidv4 } from "uuid";
 
 // Extend User and AdapterUser to include avatar
 declare module "next-auth" {
-  interface User {
-    avatar?: string | null;
-  }
   interface Session {
     user: {
       avatar?: string | null;
-      [key: string]: any;
-    };
+      id: string;
+      name: string;
+      email: string;
+      token: string;
+    } & DefaultSession["user"];
+  }
+
+  interface User {
+    id: string;
+    token: string;
+    avatar?: string | null;
   }
 }
 declare module "next-auth/adapters" {

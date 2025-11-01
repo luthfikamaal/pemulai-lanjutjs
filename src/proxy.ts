@@ -14,7 +14,7 @@ export async function proxy(request: NextRequest) {
   if (!session?.user && !isGuestRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
-    url.searchParams.set("from_protected", "true");
+    url.searchParams.set("m", "You must be signed in to access that page");
     return NextResponse.redirect(url);
   }
   if (session?.user && isGuestRoute) {
